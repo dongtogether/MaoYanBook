@@ -2,7 +2,9 @@ package com.example.maoyan.service.impl;
 
 import com.example.maoyan.mapper.BookMapper;
 import com.example.maoyan.entity.Book;
+import com.example.maoyan.redis.RedisService;
 import com.example.maoyan.service.BookService;
+import com.example.maoyan.utils.CastUtils;
 import com.example.maoyan.utils.PageRequest;
 import com.example.maoyan.utils.PageResult;
 import com.example.maoyan.utils.PageUtils;
@@ -19,9 +21,21 @@ import java.util.Map;
 public class BookServiceImpl implements BookService {
     @Autowired
     BookMapper bookMapper;
+    @Autowired
+    private RedisService redisService;
 
     public List<Book> list() {
-        return bookMapper.findAll();
+        List<Book> books;
+        String key = "booklist";
+        Object bookCache = redisService.get(key);
+
+        if (bookCache == null) {
+            books = bookMapper.findAll();
+            redisService.set(key, books);
+        } else {
+            books = CastUtils.objectConvertToList(bookCache, Book.class);
+        }
+        return books;
     }
 
     /**
@@ -64,15 +78,36 @@ public class BookServiceImpl implements BookService {
     }
 
     public void addBook(Book book) {
+        redisService.delete("booklist");
         bookMapper.saveBook(book);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        redisService.delete("booklist");
     }
 
     public void updateBookInfo(Book book){
+        redisService.delete("booklist");
         bookMapper.updateBook(book);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        redisService.delete("booklist");
     }
 
     public void deleteById(String bookId) {
+        redisService.delete("booklist");
         bookMapper.deleteById(bookId);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        redisService.delete("booklist");
     }
 
 
