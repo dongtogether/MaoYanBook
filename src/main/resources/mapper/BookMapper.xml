@@ -1,0 +1,100 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.maoyan.mapper.BookMapper">
+    <resultMap id="BookResultMap" type="com.example.maoyan.entity.Book">
+        <result property="bookId" column="bookid" />
+        <result property="cover" column="cover" />
+        <result property="title" column="title" />
+        <result property="author" column="author" />
+        <result property="date" column="date" />
+        <result property="press" column="press" />
+        <result property="abs" column="abs" />
+        <result property="cid" column="cid" jdbcType="INTEGER"/>
+        <association property="category" javaType="com.example.maoyan.entity.Category">
+            <id property="id" column="bid" jdbcType="INTEGER"/>
+            <result property="name" column="name" />
+        </association>
+    </resultMap>
+
+    <select id="findAll" resultMap="BookResultMap" >
+        SELECT * ,b.id as bid
+        FROM book a
+         LEFT JOIN category b
+         on a.cid =b.id
+         order by a.bookid desc
+    </select>
+
+    <select id="findByBookId" parameterType="String" resultMap="BookResultMap">
+		SELECT * FROM book where bookid=#{bookId}
+	</select>
+
+    <select id="findAllByCategoryId" parameterType="int" resultMap="BookResultMap">
+		SELECT * FROM book where cid=#{cid} order by bookid desc
+	</select>
+
+    <select id="findAllByTitleLikeOrAuthorLike" parameterType="String" resultMap="BookResultMap">
+		SELECT * FROM book
+		where  1=1 and
+		<if test="_parameter  != null">
+            title like "%"#{_parameter }"%"
+		or
+            author like "%"#{_parameter }"%"
+        </if>
+	</select>
+
+    <select id="findCollectBooksByPage" parameterType="map" resultMap="BookResultMap">
+        select * from collection ,book,category
+        <where>
+            collection.bookid = book.bookid
+            and book.cid = category.id
+            <if test="userId != null and userID !=''">
+                AND collection.userid = #{userId}
+            </if>
+        </where>
+        order by date desc
+    </select>
+
+    <insert id="saveBook" parameterType="com.example.maoyan.entity.Book">
+
+    insert into book(bookid,cover,title, author,date,press,abs,cid)
+    values(#{bookId}, #{cover}, #{title}, #{author}, #{date}, #{press}, #{abs},#{cid})
+    </insert>
+
+    <update id="updateBook" parameterType="com.example.maoyan.entity.Book">
+
+    update book set
+        <trim  suffixOverrides=",">
+        <if test="cover  != null">
+        cover = #{cover},
+        </if>
+        <if test="title  != null">
+         title = #{title},
+        </if>
+        <if test="author  != null">
+        author = #{author},
+        </if>
+        <if test="date  != null">
+         date = #{date} ,
+        </if>
+        <if test="press  != null">
+        press = #{press} ,
+        </if>
+        <if test="abs  != null">
+        abs = #{abs} ,
+        </if>
+        <if test="cid  != null">
+        cid = #{cid},
+        </if>
+        </trim>
+    where bookid = #{bookId}
+    </update>
+
+    <delete id="deleteById" parameterType="String">
+        delete from book
+        where bookid =#{bookId}
+    </delete>
+
+
+
+</mapper>

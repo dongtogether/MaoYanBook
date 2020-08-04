@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.maoyan.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.example.maoyan.entity.User">
+        <result property="userId" column="userid"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password" />
+    </resultMap>
+
+    <select id="selectUser" parameterType="String" resultMap="UserResultMap">
+		SELECT * FROM user where username=#{username} and password=#{password}
+	</select>
+
+    <select id="findUserById" parameterType="String" resultMap="UserResultMap">
+        SELECT userid,username,password FROM user WHERE userid = #{userId}
+    </select>
+
+    <select id="findByUserName" parameterType="String" resultMap="UserResultMap">
+		SELECT * FROM user where username=#{username}
+	</select>
+
+    <insert id="insertUser" parameterType="com.example.maoyan.entity.User">
+
+    insert into user(userid,username, password)
+    values(  #{userId}, #{username}, #{password})
+    </insert>
+
+    <update id="updateUser" parameterType="com.example.maoyan.entity.User">
+        update user set
+        <trim  suffixOverrides=",">
+        <if test="username  != null">
+            username = #{username},
+        </if>
+        <if test="password  != null">
+            password = #{password},
+        </if>
+        </trim>
+        where userid = #{userId}
+    </update>
+
+
+
+</mapper>

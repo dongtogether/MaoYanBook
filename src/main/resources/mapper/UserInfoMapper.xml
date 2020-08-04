@@ -1,0 +1,64 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.maoyan.mapper.UserInfoMapper">
+    <resultMap id="UserInfoResultMap" type="com.example.maoyan.entity.UserInfo">
+        <id property="userId" column="userid"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password" />
+        <result property="realname" column="realname" />
+        <result property="age" column="age" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="cover" column="cover" />
+        <result property="registerDate" column="register_date" />
+    </resultMap>
+
+    <select id="selectUserInfo" parameterType="String" resultMap="UserInfoResultMap">
+		SELECT * FROM user_info where username=#{username}
+	</select>
+
+    <select id="findUserInfoById" parameterType="String" resultMap="UserInfoResultMap">
+        SELECT * FROM user_info WHERE userid = #{userId}
+    </select>
+
+    <select id="findUserInfoByUserName" parameterType="String" resultMap="UserInfoResultMap">
+		SELECT * FROM user_info where username=#{username}
+	</select>
+
+    <insert id="insertUserInfo" parameterType="com.example.maoyan.entity.UserInfo">
+
+    insert into user_info(userid,username, password,realname,age,phone,email,cover,register_date)
+    values(#{userId}, #{username}, #{password},#{realname},#{age},#{phone},#{email},#{cover},#{registerDate})
+    </insert>
+
+    <update id="updateUserInfo"  parameterType="com.example.maoyan.entity.UserInfo">
+        update user_info set
+        <trim  suffixOverrides=",">
+       <if test="username  != null">
+            username = #{username},
+        </if>
+        <if test="password  != null">
+            password = #{password},
+        </if>
+        <if test="realname  != null">
+            realname = #{realname},
+        </if>
+        <if test="age  != null ">
+            age = #{age},
+        </if>
+        <if test="phone  != null ">
+            phone = #{phone},
+        </if>
+        <if test="email  != null ">
+            email = #{email},
+        </if>
+        <if test="cover  != null ">
+            cover = #{cover},
+        </if>
+        </trim>
+        where userid = #{userId}
+    </update>
+
+
+</mapper>

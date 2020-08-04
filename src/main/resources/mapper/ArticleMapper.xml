@@ -1,0 +1,71 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.maoyan.mapper.ArticleMapper">
+    <resultMap id="ArticleResultMap" type="com.example.maoyan.entity.Article">
+        <result property="articleId" column="articleid"/>
+        <result property="articleTitle" column="title"/>
+        <result property="articleContentHtml" column="content_html"/>
+        <result property="articleContentMd" column="content_md"/>
+        <result property="articleAbstract" column="abstract"/>
+        <result property="articleCover" column="cover"/>
+        <result property="articleDate" column="date"/>
+    </resultMap>
+
+    <select id="findAllByPage"  resultMap="ArticleResultMap">
+        SELECT *  FROM article order by date desc
+    </select>
+
+    <select id="findById" parameterType="String" resultMap="ArticleResultMap">
+		SELECT * FROM article where articleid=#{articleId}
+	</select>
+
+    <select id="queryArticlesByPage" parameterType="map" resultMap="ArticleResultMap">
+        select * from article
+        <where>
+            <if test="userId != null and userID !=''">
+                AND userid = #{userId}
+            </if>
+        </where>
+         order by date desc
+    </select>
+
+    <insert id="insertArticle" parameterType="com.example.maoyan.entity.Article">
+
+    insert into article(articleid,userid,title, content_html,content_md,abstract,cover,date)
+    values( #{articleId},#{userId}, #{articleTitle}, #{articleContentHtml}, #{articleContentMd},
+     #{articleAbstract}, #{articleCover}, #{articleDate})
+    </insert>
+
+    <update id="updateArticle" parameterType="com.example.maoyan.entity.Article">
+
+        update article set
+        <trim  suffixOverrides=",">
+        <if test="articleTitle  != null">
+            title = #{articleTitle},
+        </if>
+        <if test="articleContentHtml  != null">
+            content_html = #{articleContentHtml},
+        </if>
+        <if test="articleContentMd  != null">
+            content_md = #{articleContentMd},
+        </if>
+        <if test="articleAbstract  != null">
+            abstract = #{articleAbstract} ,
+        </if>
+        <if test="articleCover  != null">
+            cover = #{articleCover} ,
+        </if>
+        <if test="articleDate  != null">
+            date = #{articleDate},
+        </if>
+        </trim>
+        where articleid = #{articleId}
+    </update>
+
+    <delete id="deleteArticleById" parameterType="String">
+        delete from article
+        where articleid =#{articleId}
+    </delete>
+
+</mapper>

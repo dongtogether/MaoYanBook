@@ -1,0 +1,25 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.maoyan.mapper.CollectBookMapper">
+    <resultMap id="CollectBookResultMap" type="com.example.maoyan.entity.CollectBook">
+        <result property="collectId" column="collectid"/>
+        <result property="userId" column="userid"/>
+        <result property="bookId" column="bookid" />
+    </resultMap>
+
+    <select id="selectByUserId" parameterType="String" resultMap="CollectBookResultMap">
+		SELECT * FROM collection where userid=#{userId}
+	</select>
+
+    <insert id="addCollectBook" parameterType="com.example.maoyan.entity.CollectBook">
+
+    insert into collection(collectid,userid,bookid)
+    values(#{collectId}, #{userId}, #{bookId})
+    </insert>
+
+    <delete id="deleteCollectBook" parameterType="String" >
+		DELETE  FROM collection where userid=#{userId} and bookid=#{bookId}
+	</delete>
+
+</mapper>
