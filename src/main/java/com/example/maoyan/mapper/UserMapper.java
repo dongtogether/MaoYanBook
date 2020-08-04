@@ -1,8 +1,12 @@
 package com.example.maoyan.mapper;
 
 import com.example.maoyan.entity.User;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Component;
 
 
+@Mapper
+@Component
 public interface UserMapper {
 
     public User findUserById(String userId);
