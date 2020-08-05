@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -24,6 +25,8 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private RedisService redisService;
 
+    //查询所有图书
+    // 改为调用分页接口，未使用,暂留
     public List<Book> list() {
         List<Book> books;
         String key = "booklist";
@@ -44,10 +47,21 @@ public class BookServiceImpl implements BookService {
      * @return
      */
     public PageResult listByPage(PageRequest pageRequest) {
-        PageHelper.startPage(pageRequest.getPageNum(), pageRequest.getPageSize());
-        List<Book> bookList = bookMapper.findAll();
-        PageInfo<Book> pageInfo = new PageInfo<Book>(bookList);
-        return PageUtils.getPageResult( pageInfo);
+        // 用户访问列表页面时按页缓存文章
+        String key = "bookPage:" + pageRequest.getPageSize()
+                +"-"+ pageRequest.getPageNum();
+        Object bookPageCache = redisService.get(key);
+
+        if (bookPageCache == null) {
+            //调用分页插件完成分页
+            PageHelper.startPage(pageRequest.getPageNum(), pageRequest.getPageSize());
+            List<Book> bookList = bookMapper.findAll();
+            PageInfo<Book> pageInfo = new PageInfo<Book>(bookList);
+            redisService.set(key,PageUtils.getPageResult(pageInfo));
+            return PageUtils.getPageResult( pageInfo);
+        }else{
+            return (PageResult) bookPageCache;
+        }
     }
 
     public Book findByBookId(String bookId){
@@ -78,41 +92,40 @@ public class BookServiceImpl implements BookService {
     }
 
     public void addBook(Book book) {
-        redisService.delete("booklist");
+        Set<String> keys = redisService.getKeysByPattern("bookPage*");
+        redisService.delete(keys);
         bookMapper.saveBook(book);
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        redisService.delete("booklist");
+        redisService.delete(keys);
     }
 
     public void updateBookInfo(Book book){
-        redisService.delete("booklist");
+        Set<String> keys = redisService.getKeysByPattern("bookPage*");
+        redisService.delete(keys);
         bookMapper.updateBook(book);
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        redisService.delete("booklist");
+        redisService.delete(keys);
     }
 
     public void deleteById(String bookId) {
-        redisService.delete("booklist");
+        Set<String> keys = redisService.getKeysByPattern("bookPage*");
+        redisService.delete(keys);
         bookMapper.deleteById(bookId);
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        redisService.delete("booklist");
+        redisService.delete(keys);
     }
-
-
-
-
 
 }
 
